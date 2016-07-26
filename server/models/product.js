@@ -10,7 +10,8 @@ import config from '../config/env'
 const ProductSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     description: {
         type: String,
@@ -40,6 +41,14 @@ const ProductSchema = new mongoose.Schema({
 
 ProductSchema.post('update', function() {
     this.update({},{ $set: { updatedAt: new Date() } });
+});
+
+ProductSchema.post('save', function(error, doc, next) {
+    if (error.name === 'MongoError' && error.code === 11000) {
+        next(new APIError('There was a duplicate key error'));
+    } else {
+        next(error);
+    }
 });
 
 /**
