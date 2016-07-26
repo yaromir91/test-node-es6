@@ -5,7 +5,7 @@ import Product from '../models/product';
  */
 function load(req, res, next, id) {
   Product.get(id).then((Product) => {
-    req.Product = Product;		// eslint-disable-line no-param-reassign
+    req.product = Product;
     return next();
   }).error((e) => next(e));
 }
@@ -15,22 +15,23 @@ function load(req, res, next, id) {
  * @returns {Product}
  */
 function get(req, res) {
-  return res.json(req.Product);
+  return res.json(req.product);
 }
 
 /**
  * Create new Product
- * @property {string} req.body.Productname - The Productname of Product.
- * @property {string} req.body.mobileNumber - The mobileNumber of Product.
+ * @property {string} req.body.name - The name of Product.
+ * @property {string} req.body.price - The price of Product.
  * @returns {Product}
  */
 function create(req, res, next) {
-  const Product = new Product({
-    Productname: req.body.Productname,
-    mobileNumber: req.body.mobileNumber
+  let product = new Product({
+    name: req.body.name,
+    description: req.body.description,
+    price: req.body.price
   });
 
-  Product.saveAsync()
+  product.saveAsync()
     .then((savedProduct) => res.json(savedProduct))
     .error((e) => next(e));
 }
@@ -42,9 +43,10 @@ function create(req, res, next) {
  * @returns {Product}
  */
 function update(req, res, next) {
-  const Product = req.Product;
-  Product.Productname = req.body.Productname;
-  Product.mobileNumber = req.body.mobileNumber;
+  const Product = req.product;
+  Product.name = req.body.name;
+  Product.description = req.body.description;
+  Product.price = req.body.price;
 
   Product.saveAsync()
     .then((savedProduct) => res.json(savedProduct))
@@ -59,7 +61,7 @@ function update(req, res, next) {
  */
 function list(req, res, next) {
   const { limit = 50, skip = 0 } = req.query;
-  Product.list({ limit, skip }).then((Products) =>	res.json(Products))
+  Product.list({ limit, skip }).then((Products) => res.json(Products))
     .error((e) => next(e));
 }
 
@@ -68,8 +70,8 @@ function list(req, res, next) {
  * @returns {Product}
  */
 function remove(req, res, next) {
-  const Product = req.Product;
-  Product.removeAsync()
+  let product = req.product;
+  product.removeAsync()
     .then((deletedProduct) => res.json(deletedProduct))
     .error((e) => next(e));
 }

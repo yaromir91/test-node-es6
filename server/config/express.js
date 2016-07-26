@@ -10,13 +10,13 @@ import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
 import helmet from 'helmet';
 import winstonInstance from './winston';
-import routes from '../server/routes';
+import routes from '../routes';
 import config from './env';
-import APIError from '../server/helpers/APIError';
+import APIError from '../helpers/APIError';
 
 const app = express();
 
-if (config.env === 'development') {
+if (config.default.env === 'development') {
   app.use(logger('dev'));
 }
 
@@ -35,7 +35,7 @@ app.use(helmet());
 app.use(cors());
 
 // enable detailed API logging in dev env
-if (config.env === 'development') {
+if (config.default.env === 'development') {
   expressWinston.requestWhitelist.push('body');
   expressWinston.responseWhitelist.push('body');
   app.use(expressWinston.logger({
@@ -47,7 +47,7 @@ if (config.env === 'development') {
 }
 
 // mount all routes on /api path
-app.use('/api', routes);
+app.use('/', routes);
 
 // if error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
@@ -70,7 +70,7 @@ app.use((req, res, next) => {
 });
 
 // log error in winston transports except when executing test suite
-if (config.env !== 'test') {
+if (config.default.env !== 'test') {
   app.use(expressWinston.errorLogger({
     winstonInstance
   }));
@@ -80,7 +80,7 @@ if (config.env !== 'test') {
 app.use((err, req, res, next) =>		// eslint-disable-line no-unused-vars
   res.status(err.status).json({
     message: err.isPublic ? err.message : httpStatus[err.status],
-    stack: config.env === 'development' ? err.stack : {}
+    stack: config.default.env === 'development' ? err.stack : {}
   })
 );
 
