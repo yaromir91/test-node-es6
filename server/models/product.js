@@ -4,6 +4,9 @@ import httpStatus from 'http-status';
 import APIError from '../helpers/APIError';
 import config from '../config/env'
 
+const SchemaTypes = mongoose.Schema.Types;
+require('mongoose-double')(mongoose);
+
 /**
  * Products Schema
  */
@@ -18,7 +21,7 @@ const ProductSchema = new mongoose.Schema({
         required: true
     },
     price: {
-        type: Number,
+        type: SchemaTypes.Double,
         required: true,
         match: [config.default.validates.v1.product.price, 'The value of path {PATH} ({VALUE}) is not a valid.']
     },

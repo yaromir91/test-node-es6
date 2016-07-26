@@ -41,6 +41,7 @@
     "lodash": "^4.0.1",
     "method-override": "^2.3.5",
     "mongoose": "^4.3.7",
+    "mongoose-double": "0.0.1",
     "morgan": "1.7.0",
     "supertest-as-promised": "^3.2.0",
     "winston": "^2.1.1"
