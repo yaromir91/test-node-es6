@@ -48,7 +48,7 @@ describe('## Product APIs', () => {
         .get('/v1/products/56c787ccc67fc16ccc1a5e92')
         .expect(httpStatus.NOT_FOUND)
         .then(res => {
-          expect(res.body.description).to.equal('Not Found');
+          expect(res.body.description).to.equal(undefined);
           done();
         });
     });
@@ -56,7 +56,6 @@ describe('## Product APIs', () => {
   
   describe('# PUT /v1/products/:productId', () => {
     it('should update product details', (done) => {
-      product.username = 'KK';
       request(app)
         .put(`/v1/products/${product._id}`)
         .send(product)
