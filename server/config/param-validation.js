@@ -6,7 +6,7 @@ let validPrice = Joi.string().regex(config.default.validates.v1.product.price).r
 
 export default {
   v1: {
-    // POST /v1/users
+    // POST /v1/products
     createProduct: {
       body: {
         name: strRequired,
@@ -25,6 +25,25 @@ export default {
       params: {
         productId: Joi.string().hex().required()
       }
+    },
+    
+    // POST /v1/reviews
+    createReview: {
+      body: {
+        description: strRequired
+      },
+      params: {
+        productId: Joi.string().hex().required()
+      }
+    },
+
+    // POST /v1/products/:productId/reviews/:reviewId
+    deleteReview: {
+      params: {
+        productId: Joi.string().hex().required(),
+        reviewId: Joi.string().hex().required()
+      }
     }
+
   }
 };

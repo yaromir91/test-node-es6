@@ -5,35 +5,21 @@ import APIError from '../helpers/APIError';
 import config from '../config/env'
 
 const SchemaTypes = mongoose.Schema.Types;
-require('mongoose-double')(mongoose);
 
 /**
- * Products Schema
+ * Reviews Schema
  */
-const ProductSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        unique: true
-    },
+const ReviewSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true
     },
-    price: {
-        type: SchemaTypes.Double,
-        required: true,
-        match: [config.default.validates.v1.product.price, 'The value of path {PATH} ({VALUE}) is not a valid.']
-    },
-    reviews: [{
+    product: {
         type: SchemaTypes.ObjectId,
-        ref: 'Review'
-    }],
-    createdAt: {
-        type: Date,
-        default: Date.now
+        ref: 'Product',
+        required: true
     },
-    updatedAt: {
+    createdAt: {
         type: Date,
         default: Date.now
     }
@@ -46,35 +32,21 @@ const ProductSchema = new mongoose.Schema({
  * - virtuals
  */
 
-ProductSchema.pre('save', function(next) {
-    if(this._id){
-        this.updatedAt = new Date();
-    }
-    next();
-});
-
-ProductSchema.post('save', function(error, doc, next) {
-    if (error.name === 'MongoError' && error.code === 11000) {
-        next(new APIError('There was a duplicate key error'));
-    } else {
-        next(error);
-    }
-});
 
 /**
  * Methods
  */
-ProductSchema.method({
+ReviewSchema.method({
 });
 
 /**
  * Statics
  */
-ProductSchema.statics = {
+ReviewSchema.statics = {
     /**
      * Get product
      * @param {ObjectId} id - The objectId of product.
-     * @returns {Promise<Product, APIError>}
+     * @returns {Promise<Review, APIError>}
      */
     get(id) {
         return this.findById(id)
@@ -91,16 +63,18 @@ ProductSchema.statics = {
      * List products in descending order of 'createdAt' timestamp.
      * @param {number} skip - Number of products to be skipped.
      * @param {number} limit - Limit number of products to be returned.
-     * @returns {Promise<Product[]>}
+     * @returns {Promise<Review[]>}
      */
     list({ skip = 0, limit = 50 } = {}) {
         return this.find()
+            .populate('product', 'name -_id')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
+            .select('-__v')
             .execAsync();
     }
 };
 
 
-export default mongoose.model('Product', ProductSchema);
+export default mongoose.model('Review', ReviewSchema);
