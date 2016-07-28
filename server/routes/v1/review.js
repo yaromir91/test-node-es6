@@ -13,6 +13,8 @@ v1.route('/')
 v1.route('/:reviewId')
   /** GET /v1/reviews/:reviewId - Get review */
   .get(reviewCtrl.get)
+    
+  .delete(reviewCtrl.removeOne);
 
   /** DELETE /v1/reviews/:reviewId - Delete review */
   .delete(reviewCtrl.remove);

@@ -102,5 +102,26 @@ function remove(req, res, next) {
                 }).error((e) => next(e))
         }).error((e) => next(e));
 }
+/**
+ * Delete one review.
+ * @returns {Review} 
+ */
+function removeOne(req, res, next) {
+    let review = req.review;
+    review
+        .removeAsync()
+        .then((removeReview) => {
+            Product
+                .findOne({reviews: removeReview._id})
+                .execAsync()
+                .then((product) => {
+                    product.reviews = _.remove(product.reviews, (r) => r.toString() != removeReview._id.toString());
+                    product.saveAsync()
+                    .then((saveProduct) => {
+                        res.json(removeReview);  
+                    });
+                }).error((e) => next(e));
+        }).error((e) => next(e))
+}
 
-export default { load, get, create, list, remove, removeAll };
+export default { load, get, create, list, remove, removeAll, removeOne };
