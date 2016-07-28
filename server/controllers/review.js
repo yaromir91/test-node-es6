@@ -86,22 +86,21 @@ function removeAll(req, res, next) {
  * @returns {Review}
  */
 function remove(req, res, next) {
-  let product = req.product,
-      review = req.review;
+    let product = req.product,
+        review = req.review;
 
-  Product.get(product._id)
-      .then((currentProduct) => {
-        let reviews = _.without(currentProduct.reviews, review._id);
-        currentProduct.reviews = reviews;
-        currentProduct.saveAsync()
-        .then((saveProduct) => {
-          //review.removeAsync()
-          //    .then(function (removeReview) {
-                res.json(saveProduct)
-              //}).error((e) => next(e))
+    let result = _.filter(product.reviews, function (r) {
+        return r.toString() != review._id.toString();
+    });
+
+    product.reviews = result;
+    product.saveAsync()
+        .then(() => {
+            review.removeAsync()
+                .then(function (removeReview) {
+                    res.json(removeReview)
+                }).error((e) => next(e))
         }).error((e) => next(e));
-      })
-      .error((e) => next(e));
 }
 
 export default { load, get, create, list, remove, removeAll };

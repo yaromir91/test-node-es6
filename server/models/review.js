@@ -69,8 +69,8 @@ ReviewSchema.statics = {
         return this.find()
             .populate('product', 'name -_id')
             .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
+            .skip(Number(skip))
+            .limit(Number(limit))
             .select('-__v')
             .execAsync();
     }

@@ -17,10 +17,6 @@ v1.route('/:reviewId')
   /** DELETE /v1/reviews/:reviewId - Delete review */
   .delete(reviewCtrl.remove);
 
-v1.route('/:productId/reviews')
-
-    /** POST /v1/products/:productsId/reviews - Create new review */
-    .post(validate(paramValidation.v1.createReview), reviewCtrl.create);
 
 
 /** Load product when API with productId route parameter is hit */
