@@ -117,7 +117,7 @@ function removeOne(req, res, next) {
                 .then((product) => {
                     product.reviews = _.remove(product.reviews, (r) => r.toString() != removeReview._id.toString());
                     product.saveAsync()
-                    .then((saveProduct) => {
+                    .then(() => {
                         res.json(removeReview);  
                     });
                 }).error((e) => next(e));
