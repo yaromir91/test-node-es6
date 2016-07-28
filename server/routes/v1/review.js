@@ -2,7 +2,6 @@ import express from 'express';
 import validate from 'express-validation';
 import paramValidation from '../../config/param-validation';
 import reviewCtrl from '../../controllers/review';
-import productCtrl from '../../controllers/product';
 
 const v1 = express.Router();	// eslint-disable-line new-cap
 
@@ -16,13 +15,8 @@ v1.route('/:reviewId')
     
   .delete(reviewCtrl.removeOne);
 
-  /** DELETE /v1/reviews/:reviewId - Delete review */
-  .delete(reviewCtrl.remove);
 
 
-
-/** Load product when API with productId route parameter is hit */
-v1.param('productId', productCtrl.load);
 /** Load review when API with reviewId route parameter is hit */
 v1.param('reviewId', reviewCtrl.load);
 
