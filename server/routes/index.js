@@ -1,7 +1,7 @@
 import express from 'express';
 import productRoutesV1 from './v1/product';
 import reviewRoutesV1 from './v1/review';
-import _p from '../models/_populte';
+import _p from './v1/_populate';
 
 
 const router = express.Router();	// eslint-disable-line new-cap
@@ -15,13 +15,6 @@ router.get('/health-check', (req, res) =>
 router.use('/v1/products', productRoutesV1);
 router.use('/v1/reviews', reviewRoutesV1);
 
-router.use('/_populate', (req, res) => {
-    _p.Band.find().populate('members', '_id band').select('_id name').exec()
-        .then((result) => {
-            console.log(result);
-            res.json(result);
-        });
-    
-});
+router.use('/v1/_populate', _p);
 
 export default router;
