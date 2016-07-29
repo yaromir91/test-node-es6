@@ -54,7 +54,7 @@ ReviewSchema.statics = {
                 if (product) {
                     return product;
                 }
-                const err = new APIError('No such product exists!', httpStatus.NOT_FOUND);
+                const err = new APIError('No such review exists!', httpStatus.NOT_FOUND);
                 return Promise.reject(err);
             });
     },

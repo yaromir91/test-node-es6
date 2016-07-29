@@ -112,8 +112,7 @@ function removeOne(req, res, next) {
         .removeAsync()
         .then((removeReview) => {
             Product
-                .findOne({reviews: removeReview._id})
-                .execAsync()
+                .get(removeReview._id)
                 .then((product) => {
                     product.reviews = _.remove(product.reviews, (r) => r.toString() != removeReview._id.toString());
                     product.saveAsync()
