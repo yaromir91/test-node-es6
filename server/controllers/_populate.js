@@ -1,15 +1,16 @@
 import _p from '../models/_populate';
+import _ from 'lodash';
 
 function load() {
     return {
         person(req, res, next, id) {
-            _p.Person.findOne({id}).execAsync().then((person) => {
+            _p.Person.get(id).then((person) => {
                 req.person = person;
                 return next();
             }).error((e) => next(e));
         },
         band(req, res, next, id) {
-            _p.Band.findOne({id}).execAsync().then((band) => {
+            _p.Band.get(id).then((band) => {
                 req.band = band;
                 return next();
             }).error((e) => next(e));
@@ -19,12 +20,12 @@ function load() {
 
 function create(req, res, next) {
 
-    let person = {
+    const person = {
             name: req.body.name,
             band: req.body.band
         };
 
-    let personS = new _p.Person(person);
+    const personS = new _p.Person(person);
     personS.saveAsync()
         .then((sPerson) => {
             let bandS = new _p.Band({id: sPerson.id, name: req.body.name});
@@ -37,15 +38,14 @@ function update() {
     return {
         person(req, res, next){
             let person = req.person;
-            console.log(person);
-            person.id = 'S1hufyt_';
-            person.saveAsync()
-            .then((savePerson) => res.json(savePerson))
-            .error((e) => next(e));
+            person = _.merge(person, req.body)
+            person.saveAsync(req.body)
+                .then((savePerson) => res.json(savePerson))
+                .error((e) => next(e));
         },
         band(req, res, next){
             let band = req.band;
-            band.id = 'BkLOzyYd';
+            band = _.merge(band, req.body);
             band.saveAsync()
                 .then((saveBand) => res.json(saveBand))
                 .error((e) => next(e));
@@ -55,11 +55,12 @@ function update() {
 
 
 function list(req, res, next) {
-    _p.Band.find().populate('members', '-_id -__v')
+    _p.Band.find()
+        .populate('members', '-__v')
         .execAsync()
         .then((result) => {
             res.json(result);
-        }).error((e) => next(e));
+        });
 
 }
 

@@ -14,7 +14,7 @@
   },
   "betterScripts": {
     "test": {
-      "command": "npm run cover ./node_modules/mocha/bin/_mocha --recursive $(find ./server/tests -name '*.test.js')",
+      "command": "npm run cover ./node_modules/mocha/bin/_mocha -w server/tests",
       "env": {
         "NODE_ENV": "test"
       }

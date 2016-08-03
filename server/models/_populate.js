@@ -5,19 +5,25 @@ import config from '../config/env'
 import shortid from 'shortid'
 
 
-var PersonSchema = new mongoose.Schema({
+const PersonSchema = new mongoose.Schema({
     id: {
         type: String,
         default: shortid.generate
     },
-    name: String
+    name: {
+        type: String,
+        required: true
+    }
 });
 
-var BandSchema = new mongoose.Schema({
+const BandSchema = new mongoose.Schema({
     id: {
         type: String
     },
-    name: String
+    name: {
+        type: String,
+        required: true
+    }
 }, {
     toObject: {
         virtuals: true
@@ -36,6 +42,42 @@ BandSchema.virtual('members', {
 BandSchema.virtual('virtual_name').get(function () {
     return this.name + ' virtual'
 });
+
+PersonSchema.statics = {
+    /**
+     * Get person
+     * @param {ObjectId} id - The objectId of product.
+     * @returns {Promise<Person, APIError>}
+     */
+    get(id) {
+        return this.findById(id)
+            .execAsync().then((person) => {
+                if (person) {
+                    return person;
+                }
+                const err = new APIError('No such person exists!', httpStatus.NOT_FOUND);
+                return Promise.reject(err);
+            });
+    }
+};
+
+BandSchema.statics = {
+    /**
+     * Get person
+     * @param {ObjectId} id - The objectId of product.
+     * @returns {Promise<Person, APIError>}
+     */
+    get(id) {
+        return this.findById(id)
+            .execAsync().then((person) => {
+                if (person) {
+                    return person;
+                }
+                const err = new APIError('No such band exists!', httpStatus.NOT_FOUND);
+                return Promise.reject(err);
+            });
+    }
+};
 
 var Person = mongoose.model('Person', PersonSchema);
 var Band = mongoose.model('Band', BandSchema);

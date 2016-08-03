@@ -47,13 +47,11 @@ const ProductSchema = new mongoose.Schema({
  */
 
 ProductSchema.pre('save', function(next) {
-    if(this._id){
-        this.updatedAt = new Date();
-    }
+    this.updatedAt = new Date();
     next();
 });
 
-ProductSchema.post('save', function(error, doc, next) {
+ProductSchema.post('save', (error, doc, next) => {
     if (error.name === 'MongoError' && error.code === 11000) {
         next(new APIError('There was a duplicate key error'));
     } else {
@@ -93,7 +91,7 @@ ProductSchema.statics = {
      * @param {number} limit - Limit number of products to be returned.
      * @returns {Promise<Product[]>}
      */
-    list({ skip = 0, limit = 50 } = {}) {
+    list({ skip = 0, limit = 50 }) {
         return this.find()
             .sort({ createdAt: -1 })
             .skip(skip)
