@@ -1,10 +1,15 @@
 import _p from '../models/_populate';
 import _ from 'lodash';
 
-
+/**
+ * Populate Controller
+ */
 class _populateCtrl
 {
-    
+    /**
+     * Get entity person and band
+     * @returns {{person: (function(*, *, *, *=)), band: (function(*, *, *, *=))}}
+     */
     load() {
         return {
             person(req, res, next, id) {
@@ -22,6 +27,12 @@ class _populateCtrl
         }
     }
 
+    /**
+     * Create person with relation no band
+     * @param req
+     * @param res
+     * @param next
+     */
     create(req, res, next) {
 
         const person = {
@@ -38,7 +49,10 @@ class _populateCtrl
             }).error((e) => next(e));
     }
 
-
+    /**
+     * Update person and band
+     * @returns {{person: (function(*, *, *)), band: (function(*, *, *))}}
+     */
     update() {
         return {
             person(req, res, next){
@@ -58,7 +72,12 @@ class _populateCtrl
         }
     }
 
-
+    /**
+     * Get People and band
+     * @param req
+     * @param res
+     * @param next
+     */
     list(req, res, next) {
         _p.Band.find()
             .populate('members', '-__v')
