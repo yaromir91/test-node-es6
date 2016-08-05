@@ -4,7 +4,7 @@ import config from './config/env';
 import app from './config/express';
 
 // promisify mongoose
-Promise.promisifyAll(mongoose);
+//Promise.promisifyAll(mongoose);
 
 // connect to mongo db
 mongoose.connect(config.default.db, { server: { socketOptions: { keepAlive: 1 } } });

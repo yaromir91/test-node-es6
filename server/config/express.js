@@ -13,6 +13,8 @@ import winstonInstance from './winston';
 import routes from '../routes';
 import config from './env';
 import APIError from '../helpers/APIError';
+import mongoose from 'mongoose';
+import _ from 'lodash';
 
 const app = express();
 
@@ -52,10 +54,17 @@ app.use('/', routes);
 // if error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
   if (err instanceof expressValidation.ValidationError) {
+    console.log('11111111111111');
     // validation error contains errors which is an array of error each containing message[]
     const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
     const error = new APIError(unifiedErrorMessage, err.status, true);
     return next(error);
+  } else if (err instanceof mongoose.Error) {
+    const unifiedErrorMessage = _.map(err.errors, function (elem) {
+         return elem.message
+    });
+    var e = new APIError(unifiedErrorMessage.join(' '), err.status, true);
+    return next(e);
   } else if (!(err instanceof APIError)) {
     const apiError = new APIError(err.message, err.status, err.isPublic);
     return next(apiError);
