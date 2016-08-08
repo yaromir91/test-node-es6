@@ -54,7 +54,6 @@ app.use('/', routes);
 // if error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
   if (err instanceof expressValidation.ValidationError) {
-    console.log('11111111111111');
     // validation error contains errors which is an array of error each containing message[]
     const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
     const error = new APIError(unifiedErrorMessage, err.status, true);
@@ -62,9 +61,11 @@ app.use((err, req, res, next) => {
   } else if (err instanceof mongoose.Error) {
     const unifiedErrorMessage = _.map(err.errors, function (elem) {
          return elem.message
-    });
-    var e = new APIError(unifiedErrorMessage.join(' '), err.status, true);
-    return next(e);
+    }).join(' ');
+    const castErrorMessage = err.name === 'CastError' ? `Object id is wrong '${err.value}'` : undefined;
+    
+    var allError = new APIError(unifiedErrorMessage ? unifiedErrorMessage : castErrorMessage , err.status, true);
+    return next(allError);
   } else if (!(err instanceof APIError)) {
     const apiError = new APIError(err.message, err.status, err.isPublic);
     return next(apiError);

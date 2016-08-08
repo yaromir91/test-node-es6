@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import crypto from 'crypto';
 import { saldo } from './user'
+import APIError from '../helpers/APIError';
 
 export default {
     /**
@@ -18,13 +19,15 @@ export default {
      * @returns {Promise<Product, APIError>}
      */
     get(id) {
+        const error = Promise.reject(new APIError('No such users exists!', httpStatus.NOT_FOUND));
         return this.findById(id)
             .exec().then((users) => {
-                if (users == null) {
+                if (users !== null) {
                     return users;
                 }
-                const err = new APIError('No such users exists!', httpStatus.NOT_FOUND);
-                return Promise.reject(err);
+                return error;
+            }).catch(function () {
+                return error;
             });
     },
 

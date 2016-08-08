@@ -1,18 +1,15 @@
 import User from '../models/user';
+import _ from 'lodash';
 
 /**
  * Load User and append to req.
  */
 function load(req, res, next, id) {
-    console.log('load')
     User.get(id).then((User, err) => {
         req.user = User;
-        console.log(User, err, '<<<<');
-        if (err) {
-            return next(err);
-        } else {
-            return next();
-        }
+        return next();
+    }).catch(function (err) {
+        return next(err);
     });
 }
 
@@ -31,14 +28,14 @@ function get(req, res) {
  * @returns {User}
  */
 function create(req, res, next) {
-
+    
     let user = new User({
         email: req.body.email,
         phone: req.body.phone,
-        firstName: req.body.first_name,
-        lastName: req.body.last_name,
-        displayName: req.body.display_name,
-        password: User.cryptoGenerate(req.body.password),
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        displayName: req.body.displayName,
+        password: req.body.password ? User.cryptoGenerate(req.body.password) : undefined,
     });
 
     user.save((err, user) => {
@@ -57,13 +54,11 @@ function create(req, res, next) {
  * @returns {User}
  */
 function update(req, res, next) {
+    
     const User = req.user;
-    User.email = req.body.email;
-    User.phone = req.body.phone;
-    User.firstName = req.body.first_name;
-    User.lastName = req.body.last_name;
-    User.displayName = req.body.display_name;
-
+    _.map(req.body, (value, field) => {
+        User[field] = value 
+    });
     User.save((err, user) => {
         if (err) {
             next(err);
@@ -81,7 +76,7 @@ function update(req, res, next) {
  */
 function list(req, res, next) {
     const { limit = 50, skip = 0 } = req.query;
-    User.list({limit, skip}).then((Users) => res.json(Users))
+    User.list({limit, skip}).then((Users) => res.json(Users)).catch((e) => next(e));
 }
 
 /**
@@ -91,13 +86,7 @@ function list(req, res, next) {
 function remove(req, res, next) {
     let user = req.user;
     user.remove((err, removeUser) => {
-        console.log(err, removeUser);
-        //if (err) {
-        //    next(err);
-        //} else {
-        //    res.json(removeUser);
-        //}
-        res.json([])
+        res.json(removeUser)
     })
 }
 

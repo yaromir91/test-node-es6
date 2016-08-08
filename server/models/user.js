@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema({
         trim: true,
         index: true,
         unique: true,
+        required: true,
         validate: [mValidator({validator: 'isEmail'})]
     },
     twitterUid: {
@@ -37,7 +38,6 @@ const UserSchema = new mongoose.Schema({
     phone: {
         type: String,
         index: true,
-        unique: true,
         required: true,
         trim: true,
         validate: [mValidator({validator: 'isNumeric'})]
@@ -59,12 +59,13 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        select: false
     },
     token: {
         type: String,
         default: function () {
-            return this.cryptoGenerate('')
+            return this.cryptoGenerate('1')
         }
     },
     status: {
@@ -112,7 +113,6 @@ UserSchema.pre('findOneAndUpdate', function (next) {
 });
 
 UserSchema.post('save', (error, doc, next) => {
-    console.log(error);
     if (error.name === 'MongoError' && error.code === 11000) {
         next(new APIError('User is exists!', 500, true));
     } else {

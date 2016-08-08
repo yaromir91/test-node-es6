@@ -1,17 +1,32 @@
 import request from 'supertest-as-promised';
 import httpStatus from 'http-status';
 import chai from 'chai';
-import { expect } from 'chai';
+import { assert } from 'chai';
 import app from '../index';
 
 chai.config.includeStack = true;
 
 describe('## User APIs', () => {
     let user = {
-        name: 't-short as8',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet aut autem, consequuntur cum dignissimos dolor dolore dolorum, eum ipsam nesciunt nulla omnis, perspiciatis porro possimus quae sapiente velit veniam vitae!',
-        price: '1000.00'
+        "password": "test",
+        "lastName": "test",
+        "firstName": "test",
+        "phone": "1111111111",
+        "email": "test@test.test"
     };
+
+    describe('# GET /v1/users', () => {
+        it('should create a new user', (done) => {
+            request(app)
+                .get('/v1/users')
+                .expect(httpStatus.OK)
+                .then(res => {
+                    assert.isArray(res.body);
+                    done();
+                });
+        });
+    });
+    
     
     describe('# POST /v1/users', () => {
         it('should create a new user', (done) => {
@@ -20,9 +35,7 @@ describe('## User APIs', () => {
                 .send(user)
                 .expect(httpStatus.OK)
                 .then(res => {
-                    expect(res.body.name).to.equal(user.name);
-                    expect(res.body.description).to.equal(user.description);
-                    expect(res.body.price).to.equal(user.price);
+                    assert.equal(res.body.email, user.email);
                     user = res.body;
                     done();
                 });
@@ -35,9 +48,6 @@ describe('## User APIs', () => {
                 .get(`/v1/users/${user._id}`)
                 .expect(httpStatus.OK)
                 .then(res => {
-                    expect(res.body.name).to.equal(user.name);
-                    expect(res.body.description).to.equal(user.description);
-                    expect(res.body.price).to.equal(user.price);
                     user = res.body;
                     done();
                 });
@@ -48,7 +58,7 @@ describe('## User APIs', () => {
                 .get('/v1/users/56c787ccc67fc16ccc1a5e92')
                 .expect(httpStatus.NOT_FOUND)
                 .then(res => {
-                    expect(res.body.description).to.equal(undefined);
+                    assert.equal(res.body.email, undefined);
                     done();
                 });
         });
@@ -58,29 +68,15 @@ describe('## User APIs', () => {
         it('should update user details', (done) => {
             request(app)
                 .put(`/v1/users/${user._id}`)
-                .send(user)
+                .send({lastName: 'test 1'})
                 .expect(httpStatus.OK)
                 .then(res => {
-                    expect(res.body.name).to.equal('t-short as8');
-                    expect(res.body.price).to.equal(user.price);
+                    assert.equal(res.body.lastName, 'test 1');
                     done();
                 });
         });
     });
 
-    describe('# GET /v1/users/', () => {
-        it('should get all users', (done) => {
-            request(app)
-                .get('/v1/users')
-                .expect(httpStatus.OK)
-                .then(res => {
-                    expect(res.body).to.be.an('array');
-                    expect(res.body[0].reviews).to.be.an('array');
-                    expect(res.body[0].reviews).to.be.have.length(1);
-                    done();
-                });
-        });
-    });
 
     describe('# DELETE /v1/users/:userId', () => {
         it('should remove a review in the user', (done) => {
@@ -88,8 +84,8 @@ describe('## User APIs', () => {
                 .delete(`/v1/users/${user._id}`)
                 .expect(httpStatus.OK)
                 .then((res) => {
-                    expect(res.body._id).to.equal(review._id);
-                    expect(res.body.user).to.equal(user._id);
+                    console.log(res.body);
+                    assert.equal(res.body._id, user._id);
                     done();
                 })
 
@@ -97,16 +93,4 @@ describe('## User APIs', () => {
 
     });
 
-    describe('# DELETE /v1/users/', () => {
-        it('should delete user', (done) => {
-            request(app)
-                .delete(`/v1/users/${user._id}`)
-                .expect(httpStatus.OK)
-                .then(res => {
-                    expect(res.body.name).to.equal('t-short as8');
-                    expect(res.body.price).to.equal(user.price);
-                    done();
-                });
-        });
-    });
 });
