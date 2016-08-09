@@ -1,5 +1,4 @@
 import express from 'express';
-import validate from 'express-validation';
 import UserCtrl from '../../controllers/user';
 
 const v1 = express.Router();

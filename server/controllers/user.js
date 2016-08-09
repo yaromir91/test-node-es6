@@ -1,93 +1,116 @@
 import User from '../models/user';
 import _ from 'lodash';
+import APIError from '../helpers/APIError'
+import email from '../helpers/email.service';
 
 /**
  * Load User and append to req.
  */
-function load(req, res, next, id) {
-    User.get(id).then((User, err) => {
-        req.user = User;
-        return next();
-    }).catch(function (err) {
-        return next(err);
-    });
-}
 
-/**
- * Get User
- * @returns {User}
- */
-function get(req, res) {
-    return res.json(req.user);
-}
+export default new class UserController
+{
+    load(req, res, next, id){
+        
+        User.get(id).then((User, err) => {
+            req.user = User;
+            return next();
+        }).catch((err) => {
+            return next(err);
+        });
+    }
 
-/**
- * Create new User
- * @property {string} req.body.name - The name of User.
- * @property {string} req.body.price - The price of User.
- * @returns {User}
- */
-function create(req, res, next) {
-    
-    let user = new User({
-        email: req.body.email,
-        phone: req.body.phone,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        displayName: req.body.displayName,
-        password: req.body.password ? User.cryptoGenerate(req.body.password) : undefined,
-    });
+    /**
+     * Get User
+     * @returns {User}
+     */
+    get(req, res){
+        return res.json(req.user);
+    }
 
-    user.save((err, user) => {
-        if (err) {
-            next(err);
-        } else {
+    /**
+     * Create new User
+     * @property {string} req.body.name - The name of User.
+     * @property {string} req.body.price - The price of User.
+     * @returns {User}
+     */
+    create(req, res, next){
+        
+        let user = new User({
+            email: req.body.email,
+            phone: req.body.phone,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            displayName: req.body.displayName,
+            password: req.body.password ? User.cryptoGenerate(req.body.password) : undefined
+        });
+
+
+        user.save((err, user) => {
+            if (err){
+                next(err);
+            } else {
+                email.registrationEmail({email: user.email, token: user.emailToken}, (errEmail) => {
+                    if(errEmail) next(errEmail);
+                    res.json(user);
+                })
+            }
+        })
+    }
+
+    /**
+     * Update existing User
+     * @property {string} req.body.Username - The Username of User.
+     * @property {string} req.body.mobileNumber - The mobileNumber of User.
+     * @returns {User}
+     */
+    update(req, res, next){
+
+        const User = req.user;
+        _.map(req.body, (value, field) => {
+            User[field] = value
+        });
+        User.save((err, user) => {
+            if (err){
+                next(err);
+            } else {
+                res.json(user);
+            }
+        })
+    }
+
+    /**
+     * Get User list.
+     * @property {number} req.query.skip - Number of Users to be skipped.
+     * @property {number} req.query.limit - Limit number of Users to be returned.
+     * @returns {User[]}
+     */
+    list(req, res, next){
+        const { limit = 50, skip = 0 } = req.query;
+        User.list({limit, skip}).then((Users) => res.json(Users)).catch((e) => next(e));
+    }
+
+    /**
+     * Delete User.
+     * @returns {User}
+     */
+    remove(req, res, next){
+        let user = req.user;
+        user.remove((err, removeUser) => {
+            res.json(removeUser)
+        })
+    }
+
+    /**
+     * Activate user account
+     * @param req
+     * @param res
+     * @param next
+     * @param emailToken
+     */
+    activateAccount(req, res, next, emailToken){
+        User.findAndUpdate({emaiToken: emailToken}, {$set : {emailToken: ''}}, {new: true}, (err, user) => {
+            if(err) next(new APIError('The lifetime fo the token passed.'));
             res.json(user);
-        }
-    })
+        })
+    }
 }
-
-/**
- * Update existing User
- * @property {string} req.body.Username - The Username of User.
- * @property {string} req.body.mobileNumber - The mobileNumber of User.
- * @returns {User}
- */
-function update(req, res, next) {
-    
-    const User = req.user;
-    _.map(req.body, (value, field) => {
-        User[field] = value 
-    });
-    User.save((err, user) => {
-        if (err) {
-            next(err);
-        } else {
-            res.json(user);
-        }
-    })
-}
-
-/**
- * Get User list.
- * @property {number} req.query.skip - Number of Users to be skipped.
- * @property {number} req.query.limit - Limit number of Users to be returned.
- * @returns {User[]}
- */
-function list(req, res, next) {
-    const { limit = 50, skip = 0 } = req.query;
-    User.list({limit, skip}).then((Users) => res.json(Users)).catch((e) => next(e));
-}
-
-/**
- * Delete User.
- * @returns {User}
- */
-function remove(req, res, next) {
-    let user = req.user;
-    user.remove((err, removeUser) => {
-        res.json(removeUser)
-    })
-}
-
-export default {load, get, create, update, list, remove};

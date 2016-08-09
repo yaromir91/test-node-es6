@@ -68,6 +68,12 @@ const UserSchema = new mongoose.Schema({
             return this.cryptoGenerate('1')
         }
     },
+    emailToken: {
+        type: String,
+        default: function () {
+            return this.cryptoGenerate('email')
+        }
+    },
     status: {
         type: String,
         trim: true,
