@@ -30,6 +30,20 @@ export default {
                 return error;
             });
     },
+    
+    getByEmailToken(emailToken){
+        const error = Promise.reject(new APIError('The lifetime token expired!', httpStatus.NOT_FOUND));
+        return this.findOne()
+            .where({emailToken: emailToken})
+            .exec().then((users) => {
+                if (users !== null) {
+                    return users;
+                }
+                return error;
+            }).catch(function () {
+                return error;
+            });
+    },
 
     /**
      * List products in descending order of 'createdAt' timestamp.

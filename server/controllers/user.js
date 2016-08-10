@@ -1,4 +1,4 @@
-import User from '../models/user';
+import User, { consts } from '../models/user';
 import _ from 'lodash';
 import APIError from '../helpers/APIError'
 import email from '../helpers/email.service';
@@ -9,9 +9,27 @@ import email from '../helpers/email.service';
 
 export default new class UserController
 {
+    /**
+     * Get user by id
+     * @param req
+     * @param res
+     * @param next
+     * @param id
+     */
     load(req, res, next, id){
-        
         User.get(id).then((User, err) => {
+            req.user = User;
+            return next();
+        }).catch((err) => {
+            return next(err);
+        });
+    }
+
+    /**
+     * Get user by emailToken
+     */
+    getUserByEmailToken(req, res, next, emailToken){
+        User.getByEmailToken(emailToken).then((User, err) => {
             req.user = User;
             return next();
         }).catch((err) => {
@@ -107,10 +125,15 @@ export default new class UserController
      * @param next
      * @param emailToken
      */
-    activateAccount(req, res, next, emailToken){
-        User.findAndUpdate({emaiToken: emailToken}, {$set : {emailToken: ''}}, {new: true}, (err, user) => {
-            if(err) next(new APIError('The lifetime fo the token passed.'));
-            res.json(user);
+    activateAccount(req, res, next){
+        let user = req.user;
+        user.set({emailToken: '', status: consts.STATUS.ACTIVE});
+        user.save((err, user) => {
+            if(err) {
+                next(err)   
+            } else {
+                res.json(user);   
+            }
         })
     }
 }
