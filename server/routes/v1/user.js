@@ -1,5 +1,7 @@
 import express from 'express';
 import UserCtrl from '../../controllers/user';
+import eValidator from 'express-validation';
+import paramValidate from '../../config/param-validation';
 
 const v1 = express.Router();
 
@@ -19,6 +21,9 @@ v1.route('/:userId')
 
   /** DELETE /v1/users/:userId - Delete user */
   .delete(UserCtrl.remove);
+
+v1.route('/forgot_password')
+    .post(eValidator(paramValidate.v1.checkEmail), UserCtrl.forgotPassword);
 
 
 /** Load user when API with userId route parameter is hit */

@@ -62,6 +62,15 @@ const UserSchema = new mongoose.Schema({
         trim: true,
         select: false
     },
+    resetPasswordToken: { 
+        type: String,
+        default: function () {
+            return this.cryptoGenerate('password')
+        }
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
     token: {
         type: String,
         default: function () {
@@ -130,7 +139,8 @@ UserSchema.post('save', (error, doc, next) => {
  * Methods
  */
 UserSchema.method({
-    cryptoGenerate: statics.cryptoGenerate
+    cryptoGenerate: statics.cryptoGenerate,
+    comparePassword: statics.comparePassword
 });
 
 /**

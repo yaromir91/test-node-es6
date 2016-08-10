@@ -9,10 +9,6 @@ let _requestSecret = null;
 export default new class AuthController {
 
 
-    login(req, res) {
-        res.end();
-    }
-
     loginByTwitter(req, res, next) {
         const requestToken = req.query.oauth_token,
                 verifier = req.query.oauth_verifier,
@@ -45,4 +41,5 @@ export default new class AuthController {
             });
         }
     }
+
 }

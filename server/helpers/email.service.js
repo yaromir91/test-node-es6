@@ -62,4 +62,12 @@ export default new class EmailService
             subject: "Registration Activate"
         }, callback)
     }
+    
+    forgetPassword(data, callback){
+        this.send('forgot_password', {
+            email: data.email,
+            newPassword: data.newPassword || '',
+            subject: "Forgot Password"
+        }, callback) 
+    }
 }

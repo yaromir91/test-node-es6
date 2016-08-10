@@ -2,13 +2,13 @@ import User, { consts } from '../models/user';
 import _ from 'lodash';
 import APIError from '../helpers/APIError'
 import email from '../helpers/email.service';
+import eValidator from 'express-validation';
 
 /**
  * Load User and append to req.
  */
 
-export default new class UserController
-{
+export default new class UserController {
     /**
      * Get user by id
      * @param req
@@ -16,7 +16,7 @@ export default new class UserController
      * @param next
      * @param id
      */
-    load(req, res, next, id){
+    load(req, res, next, id) {
         User.get(id).then((User, err) => {
             req.user = User;
             return next();
@@ -28,7 +28,7 @@ export default new class UserController
     /**
      * Get user by emailToken
      */
-    getUserByEmailToken(req, res, next, emailToken){
+    getUserByEmailToken(req, res, next, emailToken) {
         User.getByEmailToken(emailToken).then((User, err) => {
             req.user = User;
             return next();
@@ -41,7 +41,7 @@ export default new class UserController
      * Get User
      * @returns {User}
      */
-    get(req, res){
+    get(req, res) {
         return res.json(req.user);
     }
 
@@ -51,8 +51,8 @@ export default new class UserController
      * @property {string} req.body.price - The price of User.
      * @returns {User}
      */
-    create(req, res, next){
-        
+    create(req, res, next) {
+
         let user = new User({
             email: req.body.email,
             phone: req.body.phone,
@@ -64,11 +64,11 @@ export default new class UserController
 
 
         user.save((err, user) => {
-            if (err){
+            if (err) {
                 next(err);
             } else {
                 email.registrationEmail({email: user.email, token: user.emailToken}, (errEmail) => {
-                    if(errEmail) next(errEmail);
+                    if (errEmail) next(errEmail);
                     res.json(user);
                 })
             }
@@ -81,14 +81,14 @@ export default new class UserController
      * @property {string} req.body.mobileNumber - The mobileNumber of User.
      * @returns {User}
      */
-    update(req, res, next){
+    update(req, res, next) {
 
         const User = req.user;
         _.map(req.body, (value, field) => {
             User[field] = value
         });
         User.save((err, user) => {
-            if (err){
+            if (err) {
                 next(err);
             } else {
                 res.json(user);
@@ -102,7 +102,7 @@ export default new class UserController
      * @property {number} req.query.limit - Limit number of Users to be returned.
      * @returns {User[]}
      */
-    list(req, res, next){
+    list(req, res, next) {
         const { limit = 50, skip = 0 } = req.query;
         User.list({limit, skip}).then((Users) => res.json(Users)).catch((e) => next(e));
     }
@@ -111,7 +111,7 @@ export default new class UserController
      * Delete User.
      * @returns {User}
      */
-    remove(req, res, next){
+    remove(req, res, next) {
         let user = req.user;
         user.remove((err, removeUser) => {
             res.json(removeUser)
@@ -125,15 +125,48 @@ export default new class UserController
      * @param next
      * @param emailToken
      */
-    activateAccount(req, res, next){
+    activateAccount(req, res, next) {
         let user = req.user;
         user.set({emailToken: '', status: consts.STATUS.ACTIVE});
         user.save((err, user) => {
-            if(err) {
-                next(err)   
+            if (err) {
+                next(err)
             } else {
-                res.json(user);   
+                res.json(user);
             }
         })
+    }
+
+    /**
+     * Forgot password
+     * @param req
+     * @param res
+     * @param next
+     */
+    forgotPassword(req, res, next) {
+
+        User.getByEmail(req.body.email)
+            .then((user, err) => {
+                if(err)
+                    next(err);
+                else{
+                    
+                    let pass = User.cryptoGenerate(`${Date.now()}`);
+                    user.password = pass;
+                    user.save((err, user) => {
+                        if(err) next(err);
+                        else {
+                            email.forgetPassword({email: user.email, newPassword: pass }, (err, email) => {
+                                if(err)
+                                    next(new APIError(err))
+                                else {
+                                    res.status(204).json()
+                                }
+                            })
+                        }
+                    })
+                }
+                
+            }).catch((e) => next(e));
     }
 }

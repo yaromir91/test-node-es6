@@ -9,8 +9,6 @@ v1.route('/activate/:emailToken')
     /** GET /v1/auth/activate/:emailToken - Get list of users */
     .get(UserCtrl.activateAccount);
 
-v1.route('/login')
-    .get(AuthCtrl.login);
 
 v1.route('/twitter')
     .get(AuthCtrl.loginByTwitter);
