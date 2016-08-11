@@ -23,7 +23,12 @@ v1.route('/:userId')
   .delete(UserCtrl.remove);
 
 v1.route('/forgot_password')
+    
     .post(eValidator(paramValidate.v1.checkEmail), UserCtrl.forgotPassword);
+
+v1.route('/reset_password')
+    
+    .post(eValidator(paramValidate.v1.resetPassword), UserCtrl.resetPassword);
 
 
 /** Load user when API with userId route parameter is hit */

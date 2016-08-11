@@ -147,17 +147,18 @@ export default new class UserController {
 
         User.getByEmail(req.body.email)
             .then((user, err) => {
-                if(err)
+                if (err)
                     next(err);
-                else{
+                else {
                     
-                    let pass = User.cryptoGenerate(`${Date.now()}`);
+                    let newPass = `${Date.now()}`.substr(0,6),
+                        pass = User.cryptoGenerate(newPass);
                     user.password = pass;
                     user.save((err, user) => {
-                        if(err) next(err);
+                        if (err) next(err);
                         else {
-                            email.forgetPassword({email: user.email, newPassword: pass }, (err, email) => {
-                                if(err)
+                            email.forgetPassword({email: user.email, newPassword: newPass}, (err) => {
+                                if (err)
                                     next(new APIError(err))
                                 else {
                                     res.status(204).json()
@@ -166,7 +167,31 @@ export default new class UserController {
                         }
                     })
                 }
-                
+
             }).catch((e) => next(e));
+    }
+
+    resetPassword(req, res, next) {
+        User.getByEmail(req.body.email)
+            .then((user, err) => {
+                if (err)
+                    next(err);
+                else {
+                    user.comparePassword(req.body.password, (err) => {
+                        if (err)
+                            next(err);
+                        else {
+                            user.password = User.cryptoGenerate(req.body.newPassword);
+                            user.save((err, user) => {
+                                if (err) {
+                                    next(err)
+                                } else {
+                                    res.json(user);
+                                }
+                            })
+                        }
+                    })
+                }
+            });
     }
 }

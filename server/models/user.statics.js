@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import crypto from 'crypto';
-import { saldo } from './user'
+import User, { saldo } from './user'
 import APIError from '../helpers/APIError';
 
 
@@ -16,13 +16,12 @@ export default {
         return crypto.createHash('md5').update(string+saldo).digest("hex");
     },
     
-    comparePassword(newPassword, callback){
-        let password = this.cryptoGenerate(newPassword);
-        if(password !== this.password){
-            callback(new APIError('Incorrect password'), null)
+    comparePassword(password, cb){
+        let isMatch = false;
+        if (User.cryptoGenerate(password) === this.password) {
+            cb(null, isMatch = true)   
         } else {
-            this.password = password;
-            this.save(callback);
+            cb(new APIError('The passwords don\'t mach', 500, true), isMatch)
         }
     },
     

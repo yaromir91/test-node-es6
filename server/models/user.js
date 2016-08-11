@@ -60,7 +60,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        select: false
     },
     resetPasswordToken: { 
         type: String,
@@ -142,6 +141,7 @@ UserSchema.method({
     cryptoGenerate: statics.cryptoGenerate,
     comparePassword: statics.comparePassword
 });
+
 
 /**
  * Statics
