@@ -38,7 +38,7 @@ export default {
                 }
                 return errorUserExists;
             }).catch(function () {
-                return error;
+                return errorUserExists;
             });
     },
     
