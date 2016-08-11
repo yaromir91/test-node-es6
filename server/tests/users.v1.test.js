@@ -7,9 +7,7 @@ import app from '../index';
 chai.config.includeStack = true;
 
 describe('## User APIs', (d) => {
-    before(() => {
-        d.skip();
-    });
+    
     let user = {
         "password": "test",
         "lastName": "test",
@@ -87,7 +85,6 @@ describe('## User APIs', (d) => {
                 .delete(`/v1/users/${user._id}`)
                 .expect(httpStatus.OK)
                 .then((res) => {
-                    console.log(res.body);
                     assert.equal(res.body._id, user._id);
                     done();
                 })
